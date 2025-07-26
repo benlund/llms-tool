@@ -5,7 +5,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["ben@benlund.com"]
 
   spec.summary       = "Ruby library for creating LLM tools with a simple DSL"
-  spec.description   = "LLMs::Tool provides a simple DSL for defining tools that can be serialized to the corerct JSON schema to beused with LLM systems"
+  spec.description   = "LLMs::Tool provides a simple DSL for defining tools that can be serialized to the correct JSON schema to be used with LLM systems"
   spec.homepage      = "https://github.com/benlund/llms-tool"
   spec.license       = "MIT"
   spec.required_ruby_version = ">= 2.6.0"
