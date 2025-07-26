@@ -1,6 +1,6 @@
 module LLMs
-  module TC
-    module ToolDefinition
+  module Tool
+    module Definition
       def self.included(base)
         base.extend(ClassMethods)
       end
@@ -32,7 +32,7 @@ module LLMs
           {
             type: 'object',
             properties: property_definitions.transform_values(&:to_json_schema),
-            required: property_definitions.select { |_, prop| prop.is_required }.keys
+            required: property_definitions.select { |_, prop| prop.is_required }.keys.map(&:to_s)
           }
         end
       end
@@ -50,7 +50,7 @@ module LLMs
             if value_type.to_s == 'Array'
               schema[:items] = value_definition.to_json_schema
             else
-              schema[:properties] = value_definition.to_json_schema
+              schema.merge!(value_definition.to_json_schema)
             end
           end
 
@@ -66,7 +66,7 @@ module LLMs
           when 'Float'   then 'number'
           when 'Array'   then 'array'
           when 'Hash'    then 'object'
-          when 'Boolean' then 'boolean'
+          when 'TrueClass', 'FalseClass', 'Boolean' then 'boolean'
           else 'string'
           end
         end
@@ -79,7 +79,7 @@ module LLMs
 
         def tool_name(name = nil)
           if name.nil?
-            @tool_name ||= self.name.split('::').last.downcase
+            @tool_name ||= (self.name ? self.name.split('::').last.downcase : 'class')
           else
             @tool_name = name
           end
@@ -119,8 +119,6 @@ module LLMs
           value = definition.default if value.nil? && !definition.default.nil?
           instance_variable_set("@#{param}", value)
 
-          ## TODO: need to recursively set the value of the nested properties
-
           # Define accessor method for this parameter
           self.class.class_eval do
             attr_reader param
@@ -128,6 +126,13 @@ module LLMs
         end
       end
 
+      def parameter_values
+        {}.tap do |values|
+          self.class.property_definition_set.property_definitions.each do |param, definition|
+            values[param.to_s] = instance_variable_get("@#{param}")
+          end
+        end
+      end
     end
   end
-end
+end 
