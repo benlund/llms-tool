@@ -58,6 +58,8 @@ class MyTool
 end
   
 pp MyTool.tool_schema
+# => {:name=>:my_tool, :description=>"tool description", :parameters=>{:type=>"object",
+#     :properties=>{:name=>{:type=>"string", :description=>"parameter description"}}, :required=>[]}}
 ```
 
 ### Using Tools with an LLM
@@ -83,27 +85,58 @@ puts result # => "14.0"
 You can define complex nested parameters:
 
 ```ruby
-class UserProcessor < LLMs::Tool::Base
-  tool_name "user_processor"
-  description "Process user information"
+class PageDetails < LLMs::Tool::Base
+  tool_name :page_details
+  description "Describe structured details about a product on a web page"
   
-  parameter :user, Hash, "User information" do
-    parameter :name, String, "User's full name", required: true
-    parameter :email, String, "User's email address", required: true
-    parameter :age, Integer, "User's age", required: false
+  parameter :title, String, "The title of the product", required: true
+  parameter :description, String, "The description of the product"
+  parameter :dimensions, Hash, "The dimensions of the product" do
+    parameter :length, Float, "The length of the product", required: true
+    parameter :width, Float, "The width of the product", required: true
+    parameter :height, Float, "The height of the product", required: true
   end
-  
-  parameter :settings, Array, "List of settings" do
-    parameter :key, String, "Setting key", required: true
-    parameter :value, String, "Setting value", required: true
+  parameter :prices, Array, "List of prices by quantity" do
+    parameter :currency, String, "The currency of the price", required: true
+    parameter :amount, Float, "The amount of the price", required: true
+    parameter :order_quantity_range, String, "The quantity range of the price e.g. '1-99', '100+'", required: false
   end
-  
-  def run
-    # Process user data
-    { processed: true, user: @user, settings_count: @settings.length }
-  end
+
+  # By default run method will return the parameter values assigned by the LLM, which is what we want
 end
+
+pp PageDetails.tool_schema
+
+# =>
+# {:name=>:page_details,
+#  :description=>"Describe structured details about a product on a web page",
+#  :parameters=>
+#   {:type=>"object",
+#    :properties=>
+#     {:title=>{:type=>"string", :description=>"The title of the product"},
+#      :description=>{:type=>"string", :description=>"The description of the product"},
+#      :dimensions=>
+#       {:type=>"object",
+#        :description=>"The dimensions of the product",
+#        :properties=>
+#         {:length=>{:type=>"number", :description=>"The length of the product"},
+#          :width=>{:type=>"number", :description=>"The width of the product"},
+#          :height=>{:type=>"number", :description=>"The height of the product"}},
+#        :required=>["length", "width", "height"]},
+#      :prices=>
+#       {:type=>"array",
+#        :description=>"List of prices by quantity",
+#        :items=>
+#         {:type=>"object",
+#          :properties=>
+#           {:currency=>{:type=>"string", :description=>"The currency of the price"},
+#            :amount=>{:type=>"number", :description=>"The amount of the price"},
+#            :order_quantity_range=>{:type=>"string", :description=>"The quantity range of the price e.g. '1-99', '100+'"}},
+#          :required=>["currency", "amount"]}}},
+ #   :required=>["title"]}}
 ```
+
+See the `examples/` directory for runnable examples.
 
 ## API Reference
 
