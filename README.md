@@ -64,21 +64,36 @@ pp MyTool.tool_schema
 
 ### Using Tools with an LLM
 
-Tools defined can be easily used with LLMs via the (llms) gem
+Tools can easily be called by LLMs using the [llms](https://github.com/benlund/llms) gem
 
 ```ruby
-require 'llms'
-# Create an instance
-calculator = MyCalculator.new(expression: "2 + 3 * 4")
+executor = LLMs::Executors.instance(
+  model_name: 'claude-sonnet-4-0',
+  temperature: 0.0,
+  max_completion_tokens: 2048,
+)
 
-# Get the tool schema (useful for LLM integration)
-schema = MyCalculator.tool_schema
-puts schema.to_json
+conversation = LLMs::Conversation.new.tap do |c|
+  c.set_available_tools([LLMs::Tool::Calculator]) # Calculator is a simple example tool included in the llms-tool gem
+  c.set_system_message("Always use the available tools to answer the question.")
+  c.add_user_message("What is (two plus three) times four?")
+end
 
-# Run the tool
-result = calculator.run
-puts result # => "14.0"
+response = executor.execute_conversation(conversation)
+puts response.text
+# => I'll calculate (two plus three) times four for you.
+
+pp response.tool_calls
+# => [#<LLMs::ConversationToolCall:0x00000001010474a8
+#     @arguments={"expression"=>"(2 + 3) * 4"}, @index=0, @name="calculator",
+#     @tool_call_id="toolu_01G3LVCEV1XJ7hwEhzCnrz6J", @tool_call_type="tool_use">]
+
+tools = LLMs::Tool::Calculator.new(response.tool_calls.first.arguments)
+pp tools.run
+# => "20.0"
 ```
+
+See `examples/llm_tool_use.rb` for a more complete example.
 
 ### Complex Parameters
 
