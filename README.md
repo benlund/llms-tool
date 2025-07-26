@@ -1,6 +1,6 @@
 # LLMs::Tool
 
-A Ruby gem for writing LLM tools with a simple DSL. Works well with (llms)[] but can be used independently too.
+A Ruby gem for defining LLM tools via a simple DSL. Works well with [llms](https://github.com/benlund/llms) but can be used independently too.
 
 See also llms-agent (coming soon) which ties this all together.
 
@@ -145,7 +145,7 @@ The following Ruby types are supported and mapped to JSON schema types:
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/benlund/llms-tool. 
+Bug reports and pull requests are welcome on GitHub at https://github.com/benlund/llms-tool.
 
 ## License
 
