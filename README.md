@@ -4,6 +4,15 @@ A Ruby gem for defining LLM tools via a simple DSL. Works well with [llms](https
 
 See also llms-agent (coming soon) which ties this all together.
 
+## Current Version
+
+0.1.0
+
+Just about usable in production.
+
+[Released 2025-07-26 on Rubygems](https://rubygems.org/gems/llms-tool)
+
+
 ## Installation
 
 Add this line to your application's Gemfile:
